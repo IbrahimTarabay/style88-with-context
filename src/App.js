@@ -1,7 +1,5 @@
 import React from 'react';
 import { Switch, Route, Redirect } from 'react-router-dom';
-import { connect } from 'react-redux';
-import { createStructuredSelector } from 'reselect';
 
 import './App.css';
 
@@ -14,33 +12,33 @@ import Header from './components/header/header';
 
 import { auth, createUserProfileDocument } from './firebase/firebase.utils';
 
-import { setCurrentUser } from './redux/user/user.actions';
-import { selectCurrentUser } from './redux/user/user.selectors';
-/*import { selectCollectionsForPreview } from './redux/shop/shop.selectors';*/
+import CurrentUserContext from './contexts/current-user/current-user.context';
 
 class App extends React.Component {
+  constructor(){
+    super();
+
+    this.state = {
+      currentUser: null
+    }
+  }
   unsubscribeFromAuth = null; 
   
   componentDidMount(){
-    const {setCurrentUser} = this.props;
-    /*it's an open messaging system between app and firebase*/
-    /*this connection is always open as long as our app component is mounted on dom*/ 
-    /*we stored the user data in our database in firebase.utils.js
-     but now we have to store that data in the "state" of our app so we can use it*/ 
     this.unsubscribeFromAuth = auth.onAuthStateChanged(async userAuth =>{
       if(userAuth){/*if user signed in*/
         const userRef = await createUserProfileDocument(userAuth);
         /*we will get user object if he have object in database*/
         userRef.onSnapshot(snapShot =>{/*to get snapshot object(data of user) from that reference*/ 
            
-          setCurrentUser({
+          this.setState({currentUser:{
             id: snapShot.id,
             ...snapShot.data()
-          });/*this function like setState*/
+          }});/*this function like setState*/
         });
       }
       else{/*if user log out set currentUser to null*/ 
-        setCurrentUser(userAuth);
+        this.setState({currentUser:userAuth});
       }
       /*addCollectionAndDocuments('collections',collectionsArray.map(({title,items}) =>
       ({title,items})))
@@ -55,10 +53,13 @@ class App extends React.Component {
   }
 
   render(){
-    const {currentUser} = this.props;
+    const {currentUser} = this.state;
     return (
       <div>
+        <CurrentUserContext.Provider value={this.state.currentUser}>
+        {/*used with dynamic state*/}
         <Header />
+        </CurrentUserContext.Provider>
         {/*header out of the switch because we want it to display in all pages*/}
         {/*we pass currentUser to make header aware of user sign in or sign out*/}
         {/*The exact param disables the partial matching for a route and makes sure
@@ -82,27 +83,4 @@ class App extends React.Component {
   }
 }
 
-const mapStateToProps = createStructuredSelector({
-  currentUser: selectCurrentUser
-  /*collectionsArray: selectCollectionsForPreview*/
-});/*we use this function to be able to use currentUser state in code it's like this.state*/
-
-const mapDispatchToProps = dispatch =>({
-  setCurrentUser: user => dispatch(setCurrentUser(user))
-  /*dispatch() whatever you're passing object is going to be an action that i'm going to pass to every reducer*/
-  /*the user will be then used as a payload*/
-})
-/*we use this function to be able to use setCurrentUser*/
-
-export default connect(mapStateToProps,mapDispatchToProps)(App);
-
-/*App component don't need currentUser anymore it's only setState it
-so we will pass null as first argument*/
-
-/*if we use currentUser state from user.reducer then we will replace null with mapStateToProps*/
-
-/*whenever you dispatch, all reducers are called, which is why there is no relation between reducer and action
-what matter is only the action type because reducer check this*/
-
-/*Reducer check action type --> action type check action --> action give payload to reducer --> 
-  reducer return the new state to store --> store pass new props to the component)*/
+export default App;

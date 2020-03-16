@@ -1,4 +1,4 @@
-import React from 'react';
+import React,{useContext} from 'react';
 import { connect } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
 
@@ -8,13 +8,15 @@ import CartIcon from '../cart-icon/cart-icon';
 import CartDropdown from '../cart-dropdown/cart-dropdown';
 
 import { selectCartHidden } from '../../redux/cart/cart.selectors';
-import { selectCurrentUser } from '../../redux/user/user.selectors';
+import CurrentUserContext from '../../contexts/current-user/current-user.context';
 
 import {HeaderContainer,LogoContainer,OptionsContainer,OptionLink} from './header.styles';
 
 import style88 from '../../assets/style88.png';
 
-const Header = ({currentUser,hidden}) =>(
+const Header = ({hidden}) =>{
+  const currentUser = useContext(CurrentUserContext);
+  return(
     <HeaderContainer>
       <LogoContainer to="/">
        <img alt="style88" src={style88} style={{ height:100, width: 110 }} />
@@ -38,24 +40,9 @@ const Header = ({currentUser,hidden}) =>(
         {/*we move the functionality of the CartDropdown
         outside the header component and put it inside of global redux state*/}
       </HeaderContainer>
-)
-
-/*we can name this function anything but this the standard, state here indication for root state*/
-/*
-const mapStateToProps = ({ user: { currentUser }, cart: { hidden } }) => ({
-  currentUser,/*instead of currentUser: state.user.currentUser
-  hidden/*instead of hidden: state.cart.hidden
-});
-*/
-
-/*const mapStateToProps = (state) => ({
-  currentUser: selectCurrentUser(state),
-  hidden: selectCartHidden(state)  
-});*/
-/*instead of this we will use reateStructuredSelector*/
+)}
 
 const mapStateToProps = createStructuredSelector({
-  currentUser: selectCurrentUser,
   hidden: selectCartHidden
 })/*automatically pass the top level state*/
 
