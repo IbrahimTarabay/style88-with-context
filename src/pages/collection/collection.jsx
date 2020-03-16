@@ -1,60 +1,82 @@
-import React from 'react';
+import React,{useState,useContext} from 'react';
 import ReactSearchBox from 'react-search-box'
-import {connect} from 'react-redux';
 
 import CollectionItem from '../../components/collection-item/collection-item';
 
-import {selectCollection} from '../../redux/shop/shop.selectors';
+import CollectionsContext from '../../contexts/collections/collections.context';
 
 import './collection.scss';
-import { Component } from 'react';
 
-class CollectionPage extends Component{
-  constructor(){
-    super()
-    this.state = {
-      searchfield: ''
-    }
-  }
- 
-onChangeSearch = (event) =>{
- this.setState({searchfield: event})
-}
+const CollectionPage = ({match}) =>{
+   
+  const [searchField,setSearchField] = useState({searchfield:''});
+  const {searchfield} = searchField;
 
-render(){
-  const {collection} = this.props;
-  const { title, items } = collection;
-  /* we solve it with isCollectionsLoaded in shop.jsx but this is another solution
-  const { title, items } = collection ? collection : {title: '', items: []};*/
-  /*we don't have collection=null when is still fetching our collection*/
+  const collections = useContext(CollectionsContext);
+  const collection = collections[match.params.collectionId];
+  const {title,items} = collection; 
+
   const filteredItems = items.filter(item =>{
-    return item.name.toLowerCase().includes(this.state.searchfield.toLowerCase())});
+    return item.name.toLowerCase().includes(searchfield.toLowerCase())});
   
- return(
-  <div className='collection-page'>
-    <h2 className='title'>{title}</h2>
-      <div className='search'>
-      <ReactSearchBox
-          inputBoxFontSize={10}
-          placeholder={`search ${title}`}
-          onChange={this.onChangeSearch}   
-          />
+  const onChangeSearch = (event) =>{
+    setSearchField({searchfield: event})
+  }
+    return(
+      <div className='collection-page'>
+      <h2 className='title'>{title}</h2>
+        <div className='search'>
+        <ReactSearchBox
+            inputBoxFontSize={10}
+            placeholder={`search ${title}`}
+            onChange={onChangeSearch}   
+            />
+        </div>
+        <div className='items'>
+          {
+          filteredItems.map(item => <CollectionItem key={item.id} item={item} />)
+          }
       </div>
-    <div className='items'>
-       {
-        filteredItems.map(item => <CollectionItem key={item.id} item={item} />)
-       }
     </div>
-  </div>
-  )
- }
-};
+    )
+  }
 
-const mapStateToProps = (state,ownProps) => ({
-  collection: selectCollection(ownProps.match.params.collectionId)(state)
-  /*this is necessary because unlike other selectors,
-  this selector needs a part of the state depending
-  on the URL parameter!*/
-  })
+export default CollectionPage;
 
-export default connect(mapStateToProps)(CollectionPage);
+/*
+first way to use context Api
+render(){
+  const {match} = this.props;
+  
+  return(
+    <CollectionsContext.Consumer>
+    {
+      collections =>{//we receive collections from CollectionsContext.Consumer
+          const collection = collections[match.params.collectionId];
+          const { title, items } = collection;
+          const filteredItems = items.filter(item =>{
+            return item.name.toLowerCase().includes(this.state.searchfield.toLowerCase())});
+          
+          return(
+            <div className='collection-page'>
+            <h2 className='title'>{title}</h2>
+              <div className='search'>
+              <ReactSearchBox
+                  inputBoxFontSize={10}
+                  placeholder={`search ${title}`}
+                  onChange={this.onChangeSearch}   
+                  />
+              </div>
+              <div className='items'>
+                {
+                filteredItems.map(item => <CollectionItem key={item.id} item={item} />)
+                }
+            </div>
+          </div>
+          )
+       }
+     }
+      </CollectionsContext.Consumer>
+    )
+  }
+};*/
