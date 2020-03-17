@@ -6,19 +6,12 @@ import './index.css';
 
 import App from './App';
 
-import {PersistGate} from 'redux-persist/integration/react';
-
-import {Provider} from 'react-redux';/*to use redux*/
-import {store,persistor} from './redux/store';
-/*Provider gives us ability to use store and reducers*/
-/*provider is component which is parent of everything in our app*/
+import CartProvider from './providers/cart/cart.provider';
 
 ReactDOM.render(
-   <Provider store={store}>
+  <CartProvider>
     <BrowserRouter>
-    <PersistGate persistor={persistor}>
     <App />
-    </PersistGate>
     </BrowserRouter>
-   </Provider>,
+  </CartProvider>,
  document.getElementById('root'));
