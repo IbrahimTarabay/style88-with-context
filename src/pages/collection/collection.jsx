@@ -27,7 +27,6 @@ const CollectionPage = ({match}) =>{
       <h2 className='title'>{title}</h2>
         <div className='search'>
         <ReactSearchBox
-            inputBoxFontSize={10}
             placeholder={`search ${title}`}
             onChange={onChangeSearch}   
             />

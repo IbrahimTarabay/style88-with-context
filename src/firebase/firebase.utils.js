@@ -1,7 +1,6 @@
 import firebase from 'firebase/app';
 import 'firebase/firestore';
 import 'firebase/auth';
-import collection from '../pages/collection/collection';
 /*we use firebase services*/ 
 
 const config = {
@@ -37,47 +36,6 @@ const config = {
      }
      return userRef;
   }
-
-  export const convertCollectionsSnapshotToMap = (collections) => {
-    const transformedCollection = collections.docs.map(doc => {
-      const {title,items} = doc.data();
-
-      return {
-        routeName: encodeURI(title.toLowerCase()),
-        id: doc.id,
-        title,
-        items
-      }
-    });
-
-    return transformedCollection.reduce((accumulator,collection) => {
-      accumulator[collection.title.toLowerCase()] = collection;
-      return accumulator;
-    },{});
-  };/*to turn collection to object with key of title and value of array like 
-  hats:{
-    id: 1,
-    title: 'Hats',
-    routeName: 'hats',
-    items: [....]*/
-
-  /*firebase will always give us back the reference object and 
-  snapshot object if nothing exists*/
-  /*export const addCollectionAndDocuments = async (collectionKey,objectsToAdd) => {
-    const collectionRef = firestore.collection(collectionKey);
-
-    const batch = firestore.batch();
-    /*with batch we want to make all requests happen as bundle so
-    all newDocRef created with all objects*/
-    /*objectsToAdd.forEach(obj => {
-      const newDocRef = collectionRef.doc();
-      /*randomly generate unique id for me
-      batch.set(newDocRef,obj);
-    });
-    return await batch.commit()
-    /*to fire our batch request
-  };*/
-  /*we just use this commented code once to enter our collection data with no manual effort*/
 
   firebase.initializeApp(config);
 
